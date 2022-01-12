@@ -9,6 +9,7 @@ import os
 import threading
 
 
+
 class App(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -49,7 +50,14 @@ class App(QMainWindow):
         self.blog_save_file.setStyleSheet("font-family:monospace;font-size:12px;")
         self.blog_save_file.clicked.connect(self.save_blog_file)
         self.statusBar().addPermanentWidget(self.blog_save_file)
-        
+
+        #View Button
+        self.blog_view_file = QPushButton("View",self)
+        self.blog_view_file.setStyleSheet("font-family:monospace;font-size:12px;")
+        self.blog_view_file.clicked.connect(self.view_blog_file)
+        self.statusBar().addPermanentWidget(self.blog_view_file)
+
+
         #Clear Button
         self.blog_clear_file = QPushButton("Clear",self)
         self.blog_clear_file.setStyleSheet("font-family:monospace;font-size:12px")
@@ -58,8 +66,10 @@ class App(QMainWindow):
     
 
     #Event Action
+    def view_blog_file(self):
+        self.write_everything()
     def clear_blog_file(self):
-        self.user_text_area.setPlainText("")
+        self.user_text_area.clear()
     def save_blog_file(self):
         try:
             file = open(os.getcwd()+"\\"+self.blog_file_name,"w")
@@ -85,9 +95,7 @@ class App(QMainWindow):
         self.omessage_box = OpenTextBox()
         self.omessage_box.show()
         self.thread1 = threading.Thread(target= self.check_oname)
-        self.thread1.daemon = True
         self.thread1.start()
-        self.write_everything()
 
     def create_new_file(self):
             self.message_box = NewTextBox()
@@ -105,14 +113,14 @@ class App(QMainWindow):
             self.user_text_area.setPlainText(content)
         except:
             pass
-
+    
     def check_oname(self):
         while(True):
             if(self.omessage_box.isVisible() == False):
                 self.blog_file_name = self.omessage_box.new_name
                 self.statusBar().showMessage(self.blog_file_name)
-                self.write_everything()
                 break
+
 
     def check_name(self):
         while(True):
@@ -149,7 +157,7 @@ class OpenTextBox(QMainWindow):
             if(os.path.exists(get_file_name)== True):
                 message = QMessageBox()
                 message.setIcon(QMessageBox.Information)
-                message.setText("File Opened Successfully!!")
+                message.setText("File Opened Successfully!!\nClick View")
                 message.setWindowTitle("BlogPad")
                 message.setWindowIcon(QtGui.QIcon("notepad.png"))
                 message.setStandardButtons(QMessageBox.Ok)
@@ -163,13 +171,12 @@ class OpenTextBox(QMainWindow):
                 message.setWindowTitle("BlogPad")
                 message.setWindowIcon(QtGui.QIcon("notepad.png"))
                 message.setStandardButtons(QMessageBox.Ok)
-                message.exec_()
-                self.new_name = get_file_name 
+                message.exec_() 
         else:
             if(os.path.exists(os.getcwd()+"\\"+get_file_name) == True):
                 message = QMessageBox()
                 message.setIcon(QMessageBox.Information)
-                message.setText("File Opened Successfully!!")
+                message.setText("File Opened Successfully!!\n Click View")
                 message.setWindowTitle("BlogPad")
                 message.setStandardButtons(QMessageBox.Ok)
                 message.exec_()
@@ -214,5 +221,22 @@ class NewTextBox(QMainWindow):
 #driver Code
 if(__name__ == "__main__"):
     app = QApplication(sys.argv)
-    ex = App()
-    sys.exit(app.exec_())
+    if(len(sys.argv)==2):
+        ex = App()
+        ex.blog_file_name= sys.argv[1]
+        ex.write_everything()
+        ex.statusBar().showMessage(sys.argv[1])
+        sys.exit(app.exec_())
+    elif(len(sys.argv)==1):
+        ex = App()
+        sys.exit(app.exec_())
+    else:
+        message = QMessageBox()
+        message.setIcon(QMessageBox.Information)
+        message.setText("Too Much Files To Be Handled!!")
+        message.setWindowTitle("BlogPad")
+        message.setWindowIcon(QtGui.QIcon("notepad.png"))
+        message.setStandardButtons(QMessageBox.Ok)
+        message.exec_()
+        
+
