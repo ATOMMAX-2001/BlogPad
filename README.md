@@ -1,0 +1,2 @@
+# BlogPad
+A Simple Notepad
